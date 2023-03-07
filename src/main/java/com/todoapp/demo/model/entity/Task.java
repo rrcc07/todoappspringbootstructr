@@ -1,13 +1,14 @@
-package com.todoapp.demo.persistence.entity;
+package com.todoapp.demo.model.entity;
 
-import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.repository.query.Param;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table
+@Table(name = "tasks")
 public class Task {
 
     @Id
@@ -18,5 +19,7 @@ public class Task {
     private LocalDateTime createdDate;
     private LocalDateTime eta;
     private boolean finished;
+    @Column(name="status")
+    @Enumerated(value = EnumType.STRING)
     private TaskStatus taskStatus;
 }

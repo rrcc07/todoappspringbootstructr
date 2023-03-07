@@ -1,4 +1,4 @@
-package com.todoapp.demo.service.dto;
+package com.todoapp.demo.dto;
 
 import lombok.Data;
 

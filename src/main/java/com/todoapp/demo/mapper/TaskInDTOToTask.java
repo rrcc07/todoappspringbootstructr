@@ -1,8 +1,8 @@
 package com.todoapp.demo.mapper;
 
-import com.todoapp.demo.persistence.entity.Task;
-import com.todoapp.demo.persistence.entity.TaskStatus;
-import com.todoapp.demo.service.dto.TaskDto;
+import com.todoapp.demo.model.entity.Task;
+import com.todoapp.demo.model.entity.TaskStatus;
+import com.todoapp.demo.dto.TaskDto;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package com.todoapp.demo.persistence.entity;
+package com.todoapp.demo.model.entity;
 
 public enum TaskStatus {
     ON_TIME, LATE

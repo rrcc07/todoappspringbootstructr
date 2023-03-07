@@ -1,27 +1,36 @@
 package com.todoapp.demo.service;
 
-import com.todoapp.demo.exceptions.ToDoExceptions;
+import com.todoapp.demo.exceptions.NoSuchElementException;
+import com.todoapp.demo.exceptions.NotFoundException;
 import com.todoapp.demo.mapper.TaskInDTOToTask;
-import com.todoapp.demo.persistence.entity.Task;
-import com.todoapp.demo.persistence.entity.TaskStatus;
-import com.todoapp.demo.persistence.repository.TaskRepository;
-import com.todoapp.demo.service.dto.TaskDto;
-import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
+import com.todoapp.demo.model.entity.Task;
+import com.todoapp.demo.model.entity.TaskStatus;
+import com.todoapp.demo.repository.ITaskRepository;
+import com.todoapp.demo.dto.TaskDto;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TaskService {
-    private final TaskRepository repository;
+public class TaskService implements  ITaskService{
+
+    private final ITaskRepository repository;
     private final TaskInDTOToTask taskInDTOToTask;
 
-    public TaskService(TaskRepository repository, TaskInDTOToTask taskInDTOToTask) {
+    public TaskService(ITaskRepository repository, TaskInDTOToTask taskInDTOToTask) {
         this.repository = repository;
         this.taskInDTOToTask = taskInDTOToTask;
+    }
+
+    @Override
+    public Optional<Task> get(Long id) {
+        Optional<Task> optionalTask = repository.findById(id);
+        if(optionalTask.isEmpty()){
+            throw new NoSuchElementException("no content task");
+        }
+        return repository.findById(id);
     }
 
     public Task createTask(TaskDto taskDto) {
@@ -41,7 +50,7 @@ public class TaskService {
     public void updateTaskAsFinished(Long id) {
         Optional<Task> optionalTask = this.repository.findById(id);
         if(optionalTask.isEmpty()){
-            throw new ToDoExceptions("Task not Found", HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Task not Found");
         }
         this.repository.markTaskAsFinished(id);
     }
@@ -49,8 +58,16 @@ public class TaskService {
     public void deleteById(Long id) {
         Optional<Task> optionalTask = this.repository.findById(id);
         if(optionalTask.isEmpty()){
-            throw new ToDoExceptions("Task not Found", HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Task not Found");
         }
         this.repository.deleteById(id);
+    }
+    @Transactional
+    public void changeTaskAsStatus(Long id){
+        Optional<Task> optionalTask = this.repository.findById(id);
+        if (optionalTask.isEmpty()){
+            throw new NotFoundException("Task not Found");
+        }
+        this.repository.markTaskStatusAsOnLate(id, String.valueOf(TaskStatus.LATE));
     }
 }
