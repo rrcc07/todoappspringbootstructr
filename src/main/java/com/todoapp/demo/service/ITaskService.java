@@ -4,16 +4,19 @@ import com.todoapp.demo.dto.TaskDto;
 import com.todoapp.demo.model.entity.Task;
 import com.todoapp.demo.model.entity.TaskStatus;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface ITaskService {
+public interface ITaskService<Type,TypeNew> {
 
-    public Optional<Task> get(Long id);
-    public Task createTask(TaskDto taskDto);
-    public List<Task> findAll();
-    public List<Task> findAllByTaskStatus(TaskStatus taskStatus);
-    public void updateTaskAsFinished(Long id);
-    public void deleteById(Long id);
-    public void changeTaskAsStatus(Long id);
+    Optional<Type> get(long id);
+    Collection<Type> getAll();
+    Type create(TypeNew typeNew);
+    boolean delete(long id);
+    boolean exist(long id);
+
+    List<Type> findAllByTaskStatus(TaskStatus taskStatus);
+    void markTaskStatusAsOnLate(Long id);
+    void updateTaskAsFinished(Long id);
 }

@@ -1,26 +1,29 @@
 package com.todoapp.demo.dto;
 
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.todoapp.demo.model.entity.TaskStatus;
-import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
-public class TaskDto {
-
-    private long id;
+public class NewTaskDto {
     private String title;
     private String description;
     private LocalDateTime eta;
     private TaskStatus taskStatus;
     private LocalDateTime createdDate;
 
-    public long getId() {
-        return id;
+
+    public NewTaskDto() {
+        this.createdDate = LocalDate.now().atStartOfDay();
+        this.taskStatus = TaskStatus.ON_TIME;
+    }
+    public TaskStatus getTaskStatus() {
+        return taskStatus;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setTaskStatus(TaskStatus taskStatus) {
+        this.taskStatus = taskStatus;
     }
 
     public String getTitle() {
@@ -45,14 +48,6 @@ public class TaskDto {
 
     public void setEta(LocalDateTime eta) {
         this.eta = eta;
-    }
-
-    public TaskStatus getTaskStatus() {
-        return taskStatus;
-    }
-
-    public void setTaskStatus(TaskStatus taskStatus) {
-        this.taskStatus = taskStatus;
     }
 
     public LocalDateTime getCreatedDate() {

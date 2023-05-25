@@ -1,73 +1,78 @@
 package com.todoapp.demo.service;
 
+import com.todoapp.demo.dto.NewTaskDto;
 import com.todoapp.demo.exceptions.NoSuchElementException;
 import com.todoapp.demo.exceptions.NotFoundException;
+import com.todoapp.demo.mapper.NewTaskDTOMapper;
+import com.todoapp.demo.mapper.TaskDTOMapper;
 import com.todoapp.demo.mapper.TaskInDTOToTask;
 import com.todoapp.demo.model.entity.Task;
 import com.todoapp.demo.model.entity.TaskStatus;
-import com.todoapp.demo.repository.ITaskRepository;
+import com.todoapp.demo.persistence.ITaskRepository;
 import com.todoapp.demo.dto.TaskDto;
+import com.todoapp.demo.persistence.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class TaskService implements  ITaskService{
+public class TaskService implements ITaskService<TaskDto, NewTaskDto>{
 
-    private final ITaskRepository repository;
-    private final TaskInDTOToTask taskInDTOToTask;
+    TaskRepository taskRepository;
+    TaskDTOMapper taskDTOMapper;
+    NewTaskDTOMapper newTaskDTOMapper;
 
-    public TaskService(ITaskRepository repository, TaskInDTOToTask taskInDTOToTask) {
-        this.repository = repository;
-        this.taskInDTOToTask = taskInDTOToTask;
+    public TaskService(TaskRepository taskRepository, TaskDTOMapper taskDTOMapper, NewTaskDTOMapper newTaskDTOMapper) {
+        this.taskRepository = taskRepository;
+        this.taskDTOMapper = taskDTOMapper;
+        this.newTaskDTOMapper = newTaskDTOMapper;
     }
 
     @Override
-    public Optional<Task> get(Long id) {
-        Optional<Task> optionalTask = repository.findById(id);
-        if(optionalTask.isEmpty()){
-            throw new NoSuchElementException("no content task");
-        }
-        return repository.findById(id);
+    public Optional<TaskDto> get(long id) {
+        return taskRepository.get(id).map(task -> taskDTOMapper.toTask(task));
     }
 
-    public Task createTask(TaskDto taskDto) {
-        Task task = taskInDTOToTask.map(taskDto);
-        return this.repository.save(task);
+    @Override
+    public Collection<TaskDto> getAll() {
+        return taskRepository.getAll().stream().map(task -> taskDTOMapper.toTask(task)).collect(Collectors.toList());
     }
 
-    public List<Task> findAll() {
-        return this.repository.findAll();
+
+    @Override
+    public TaskDto create(NewTaskDto newTaskDto) {
+        Task task = newTaskDTOMapper.toTask(newTaskDto);
+        return taskDTOMapper.toTask(taskRepository.create(task));
     }
 
-    public List<Task> findAllByTaskStatus(TaskStatus taskStatus) {
-        return this.repository.findAllByTaskStatus(taskStatus);
+    @Override
+    public boolean delete(long id){
+        return taskRepository.delete(id);
+    }
+
+    @Override
+    public boolean exist(long id){
+        return taskRepository.exist(id);
+    }
+
+    /***IMPLEMENTACIONES EXTRAS***/
+    @Override
+    public List<TaskDto> findAllByTaskStatus(TaskStatus taskStatus) {
+        return taskRepository.findAllByTaskStatus(taskStatus).stream().map(task -> taskDTOMapper.toTask(task)).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void markTaskStatusAsOnLate(Long id){
+        taskRepository.markTaskStatusAsOnLate(id, String.valueOf(TaskStatus.LATE));
     }
 
     @Transactional
     public void updateTaskAsFinished(Long id) {
-        Optional<Task> optionalTask = this.repository.findById(id);
-        if(optionalTask.isEmpty()){
-            throw new NotFoundException("Task not Found");
-        }
-        this.repository.markTaskAsFinished(id);
-    }
-
-    public void deleteById(Long id) {
-        Optional<Task> optionalTask = this.repository.findById(id);
-        if(optionalTask.isEmpty()){
-            throw new NotFoundException("Task not Found");
-        }
-        this.repository.deleteById(id);
-    }
-    @Transactional
-    public void changeTaskAsStatus(Long id){
-        Optional<Task> optionalTask = this.repository.findById(id);
-        if (optionalTask.isEmpty()){
-            throw new NotFoundException("Task not Found");
-        }
-        this.repository.markTaskStatusAsOnLate(id, String.valueOf(TaskStatus.LATE));
+        taskRepository.markTaskAsFinished(id);
     }
 }

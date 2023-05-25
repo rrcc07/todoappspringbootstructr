@@ -1,22 +1,32 @@
-package com.todoapp.demo.model.entity;
+package com.todoapp.demo.persistence.dao;
 
+import com.todoapp.demo.model.entity.TaskStatus;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
-public class Task {
+@Entity
+@Table(name = "tasks")
+public class TaskDAO {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String title;
     private String description;
     private LocalDateTime createdDate;
     private LocalDateTime eta;
     private boolean finished;
+
+    @Column(name="status")
+    @Enumerated(value = EnumType.STRING)
     private TaskStatus taskStatus;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
